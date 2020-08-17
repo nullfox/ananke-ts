@@ -1,6 +1,6 @@
 {
   "name": "@ananke/serverless",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Serverless plugin",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",

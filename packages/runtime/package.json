@@ -1,6 +1,6 @@
 {
   "name": "@ananke/runtime",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Serverless runtime",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
