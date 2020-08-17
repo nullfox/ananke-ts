@@ -1,0 +1,32 @@
+{
+  "name": "@ananke/sequelize",
+  "version": "1.0.1",
+  "description": "Ananke sequelize manager",
+  "author": "Ben Fox <ben.fox@sibly.co>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.19",
+    "sequelize": "^6.3.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.159",
+    "@types/sequelize": "^4.28.9"
+  },
+  "gitHead": "438f89ce40c1ef079dd6b5a44cc24529728f5eef",
+  "publishConfig": {
+    "access": "public"
+  }
+}
