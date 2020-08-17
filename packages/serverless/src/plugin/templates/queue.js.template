@@ -1,0 +1,15 @@
+const Runtime = require('@foxface/runtime');
+
+const Context = require('<%= contextPath %>').default;
+const runner = require('./<%= sourcePath %>').default;
+
+module.exports.handler = async event => (
+  Context.exec(ctx => (
+    Runtime.Handler.Queue.factory(
+      ctx,
+      runner,
+      <%= options %>,
+    )
+      .exec(event)
+  ))
+);

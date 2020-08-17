@@ -1,0 +1,33 @@
+{
+  "name": "@ananke/serverless",
+  "version": "0.0.1",
+  "description": "Serverless plugin",
+  "author": "Ben Fox <ben.fox@sibly.co>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/plugin.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "tsc": "tsc && mkdir -p lib/plugin/templates && cp src/plugin/templates/**.js.template lib/plugin/templates",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "docblock": "^0.4.4",
+    "glob": "^7.1.6",
+    "lodash": "^4.17.19"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/lodash": "^4.14.159"
+  },
+  "gitHead": "438f89ce40c1ef079dd6b5a44cc24529728f5eef",
+  "publishConfig": {
+    "access": "public"
+  }
+}

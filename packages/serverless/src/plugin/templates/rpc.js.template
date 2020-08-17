@@ -1,0 +1,15 @@
+const Runtime = require('@foxface/runtime');
+
+const Context = require('<%= contextPath %>').default;
+
+module.exports.handler = async event => (
+  Context.exec(ctx => (
+    Runtime.Handler.RPC.factory(
+      ctx,
+      () => '<%= path %>',
+      <%= options %>,
+    )
+      .exec(event)
+      .then(responder => responder.toGateway())
+  ))
+);

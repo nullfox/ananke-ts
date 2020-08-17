@@ -1,0 +1,34 @@
+{
+  "name": "@ananke/config-ssm",
+  "version": "0.0.1",
+  "description": "ananke AWS SSM config",
+  "author": "Ben Fox <ben.fox@sibly.co>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "dot-object": "^2.1.3",
+    "lodash": "^4.17.19"
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/dot-object": "^2.1.2",
+    "@types/lodash": "^4.14.159",
+    "aws-sdk": "^2.733.0"
+  },
+  "gitHead": "438f89ce40c1ef079dd6b5a44cc24529728f5eef",
+  "publishConfig": {
+    "access": "public"
+  }
+}
