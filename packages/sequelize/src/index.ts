@@ -14,6 +14,7 @@ import {
 
 import {
   chain,
+  get,
   capitalize,
   has,
 } from 'lodash';
@@ -22,8 +23,13 @@ export interface Models {
   [key: string]: Model | Sequelize | typeof Sequelize
 }
 
+export interface ModelConfig {
+  [key: string]: { [key: string]: any }
+}
+
 export default class ConnectionManager {
   connection: Sequelize
+  modelConfig: ModelConfig
 
   static createConnection(options: ConnectionOptions, additional: { [key: string]: any }): Sequelize {
     return new Sequelize(
@@ -46,20 +52,21 @@ export default class ConnectionManager {
     );
   }
 
-  static factory(connection: Sequelize, modelConfig = {}): ConnectionManager {
+  static factory(connection: Sequelize, modelConfig: ModelConfig = {}): ConnectionManager {
     return new ConnectionManager(connection, modelConfig);
   }
 
-  constructor(connection: Sequelize, modelConfig = {}) {
+  constructor(connection: Sequelize, modelConfig: ModelConfig = {}) {
     this.connection = connection;
+    this.modelConfig = modelConfig;
   }
 
   setup(models = {}): Models {
     return chain(models)
-      .mapValues((model: Model) => {
+      .mapValues((model: Model, key: string) => {
         if (has(model, 'init')) {
           // @ts-ignore
-          model.init(this.connection, Sequelize, {})
+          model.init(this.connection, Sequelize, get(this.modelConfig, key, {}))
         }
 
         if (has(model, 'associate')) {
