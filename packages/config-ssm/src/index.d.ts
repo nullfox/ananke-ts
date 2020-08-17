@@ -8,6 +8,7 @@ export default class SSM {
 
     private recursiveFetch;
 
+    fetchRaw(prefix: string): Promise<object>;
     fetch(prefix: string): Promise<object>;
 }
 

@@ -1,10 +1,15 @@
 import {
   chain,
+  forEach,
   has,
   set,
 } from 'lodash';
 
-import SSM, { Client } from '@ananke/config-ssm';
+import SSM, {
+  Client,
+  Options,
+} from '@ananke/config-ssm';
+
 import convict from 'convict';
 
 const DEFAULTS = {
@@ -35,10 +40,11 @@ export default class Config {
     this.ssm = SSM.factory(ssmOrUndefined);
   }
 
-  private convictify(secrets: object): convict.Config<T> {
+  private convictify(secrets: object): convict.Config<any> {
     const structured = {};
 
-    chain(DEFAULTS)
+    const merged = chain(DEFAULTS)
+      .merge(this.manifest)
       .merge(secrets)
       .mapValues((value, key) => (
         has(value, 'doc')
@@ -50,7 +56,9 @@ export default class Config {
             env: key.split('.').join('_').toUpperCase(),
           }
       ))
-      .forEach((value, key) => set(structured, key, value));
+      .value();
+
+    forEach(merged, (value, key) => set(structured, key, value));
 
     const config = convict(structured);
     
@@ -59,8 +67,8 @@ export default class Config {
     return config;
   }
 
-  async fetch(prefix: string): Promise<object> {
-    const secrets = await this.ssm.fetch(prefix);
+  async fetch(prefix: string, options: Options = {}): Promise<object> {
+    const secrets = await this.ssm.fetchRaw(prefix, options);
 
     return this.convictify(secrets);
   }

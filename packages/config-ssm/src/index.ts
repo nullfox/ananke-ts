@@ -7,8 +7,18 @@ import {
 } from 'aws-sdk';
 
 import {
+  has,
   chain,
+  mapKeys,
+  omitBy,
+  pickBy,
 } from 'lodash';
+
+export interface Options {
+  only?: RegExp
+  except?: RegExp
+  transformKey?: Function
+}
 
 export default class SSM {
   ssm: Client
@@ -52,11 +62,33 @@ export default class SSM {
       )
     }
 
-    return object(aggregate);
+    return aggregate;
   }
 
-  async fetch(prefix: string): Promise<object> {
-    return this.recursiveFetch(prefix, undefined);
+  async fetchRaw(prefix: string, options: Options = {}): Promise<object> {
+    const fetched = await this.recursiveFetch(prefix, undefined);
+
+    let filtered = fetched;
+
+    if (has(options, 'only')) {
+      filtered = pickBy(filtered, (val, key) => options.only!.test(key));
+    }
+
+    if (has(options, 'except')) {
+      filtered = omitBy(filtered, (val, key) => options.except!.test(key));
+    }
+
+    if (has(options, 'transformKey')) {
+      filtered = mapKeys(filtered, (val, key) => options.transformKey!(key));
+    }
+
+    return filtered;
+  }
+
+  async fetch(prefix: string, options: Options = {}): Promise<object> {
+    const raw = await this.fetchRaw(prefix, options);
+
+    return object(raw);
   }
 }
 
