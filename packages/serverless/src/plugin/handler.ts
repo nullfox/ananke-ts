@@ -90,7 +90,7 @@ export default class Handler {
     };
 
     const replaced = replacePsuedo(
-      this.plugin.getCustomValue(Key.PsuedoName),
+      this.plugin.getCustomValue(Key.PsuedoName, 'Ananke'),
       queue,
       replacements,
     );

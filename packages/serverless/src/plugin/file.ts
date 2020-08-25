@@ -153,6 +153,7 @@ export default class File {
   
     const options: { [key: string]: any } = {
       auth: get(tags, 'auth') !== 'false',
+      onError: this.plugin.getCustomValue(Key.OnErrorFunction),
     };
 
     if (tags.params) {

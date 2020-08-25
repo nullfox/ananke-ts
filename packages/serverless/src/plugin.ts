@@ -24,9 +24,11 @@ import File, { RPC } from './plugin/file';
 export enum Key {
   Prefix = 'ananke',
 
-  Context = 'ananke.context',
-  FunctionSource = 'ananke.functionSource',
   PsuedoName = 'ananke.psuedoName',
+
+  Context = 'ananke.function.context',
+  FunctionSource = 'ananke.function.source',
+  OnErrorFunction = 'ananke.function.onError',
 
   Rpc = 'ananke.rpc',
   RpcPath = 'ananke.rpc.path',
@@ -63,11 +65,6 @@ export default class Plugin {
       `${Key.FunctionSource} key must be set in serverless.yml (ex: custom.${Key.FunctionSource}: lib/functions`,
     );
 
-    ok(
-      this.hasCustomValue(Key.PsuedoName),
-      `${Key.PsuedoName} key must be set in serverless.yml (ex: custom.${Key.PsuedoName}: Ananke`,
-    );
-
     const files = sync(`${this.getCustomValue(Key.FunctionSource)}/**/*.+(js|ts)`);
     
     this.files = chain(files)
@@ -84,8 +81,8 @@ export default class Plugin {
     return has(this.sls.service, `custom.${key}`);
   }
 
-  getCustomValue(key: Key): string {
-    return get(this.sls.service, `custom.${key}`);
+  getCustomValue(key: Key, defaultValue?: string): string {
+    return get(this.sls.service, `custom.${key}`, defaultValue);
   }
 
   hasRpc(): boolean {

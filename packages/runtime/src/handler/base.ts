@@ -1,5 +1,9 @@
 import {
-  get,
+  join,
+} from 'path';
+
+import {
+  has,
   mapValues,
 } from 'lodash';
 
@@ -57,6 +61,29 @@ export default class Base {
     });
   }
 
+  static requireHandler(path: string, underscoreName: boolean = true): Function | Error {
+    let fullPath = path;
+
+    if (underscoreName) {
+      const pieces = path.split('/');
+    
+      pieces.push(`_${pieces.pop()}`);
+
+      fullPath = join(
+        process.cwd(),
+        ...pieces,
+      );
+    }
+
+    const file = require(fullPath);
+
+    if (!file.handler) {
+      throw new Error(`Helper at ${path} does not export a function called "handler"`);
+    }
+
+    return file.handler as Function;
+  }
+
   static factory(context: any, runner: Function, options: Options = {}): Base {
     return new Base(context, runner, options);
   }
@@ -65,6 +92,14 @@ export default class Base {
     this.context = context;
     this.runner = runner;
     this.options = options;
+  }
+
+  hasErrorHandler(): boolean {
+    return !!this.options.onError;
+  }
+
+  async requireErrorHandler(): Promise<Function | Error> {
+    return Base.requireHandler(this.options.onError!);
   }
 
   async exec(event: any): Promise<any> {

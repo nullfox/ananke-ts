@@ -98,31 +98,12 @@ export default class RPC extends Http {
     return methodCache;
   }
 
-  async resolveAuthenticator(path: string): Promise<Function | Error> {
-    const pieces = path.split('/');
-    
-    pieces.push(`_${pieces.pop()}`);
-
-    const fullPath = join(
-       process.cwd(),
-       ...pieces,
-    );
-
-    const file = require(fullPath);
-
-    if (!file.handler) {
-      throw new Error(`Authenicator at ${path} does not export a function called "handler"`);
-    }
-
-    return file.handler as Function;
-  }
-
   async resolvePrincipalId(
     authenticatorPath: string,
     authorizationHeader: string,
     sourceEvent: { [key: string]: any }
   ): Promise<string | undefined> {
-    const authenticator = await this.resolveAuthenticator(authenticatorPath) as Function;
+    const authenticator = await RPC.requireHandler(authenticatorPath) as Function;
 
     return authenticator(
       authorizationHeader,
@@ -215,6 +196,12 @@ export default class RPC extends Http {
       const boomed = boomify(error);
     
       if (boomed.isServer) {
+        if (this.hasErrorHandler()) {
+          const errorHandler = await this.requireErrorHandler() as Function;
+
+          await errorHandler(boomed, error, this.context);
+        }
+
         childLogger.error(
           { err: boomed },
           'Finished request with server error',
