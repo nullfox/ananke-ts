@@ -1,6 +1,6 @@
 import Bunyan from 'bunyan';
 
-import { Boom as BoomError } from '@hapi/boom';
+import { Boom } from '@hapi/boom';
 
 import Context, { DefaultContext } from './context';
 
@@ -16,10 +16,6 @@ export namespace Request {
   export interface RPC extends RPCRequest {}
 }
 
-export namespace Response {
-  export interface Boom extends BoomError {}
-}
-
 const Handler = {
   RPC,
   Queue,
@@ -27,6 +23,7 @@ const Handler = {
 };
 
 export {
+  Boom,
   Bunyan,
   Context,
   DefaultContext,
