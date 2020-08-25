@@ -98,20 +98,6 @@ export default class RPC extends Http {
     return methodCache;
   }
 
-  async resolvePrincipalId(
-    authenticatorPath: string,
-    authorizationHeader: string,
-    sourceEvent: { [key: string]: any }
-  ): Promise<string | undefined> {
-    const authenticator = await RPC.requireHandler(authenticatorPath) as Function;
-
-    return authenticator(
-      authorizationHeader,
-      this.context,
-      sourceEvent,
-    );
-  }
-
   async resolveMethod(envelope: Envelope): Promise<Method> {
     const methods = await this.collect();
   
@@ -151,7 +137,8 @@ export default class RPC extends Http {
     childLogger.debug(
       {
         method: envelope.method,
-      }, 'Starting RPC request',
+      },
+      'Starting RPC request',
     );
 
     try {

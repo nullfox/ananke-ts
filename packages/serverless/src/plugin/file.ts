@@ -180,7 +180,8 @@ export default class File {
 
   shouldRegister(): boolean {
     return this.getType() !== Type.Unknown
-      && this.getType() !== Type.Method;
+      && this.getType() !== Type.Method
+      && this.getType() !== Type.Generic;
   }
 
   write(): void {

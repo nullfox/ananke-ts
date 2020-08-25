@@ -22,13 +22,15 @@
     "acorn": "^8.0.1",
     "bunyan": "^1.8.14",
     "joi": "^17.2.1",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.19",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/bunyan": "^1.8.6",
     "@types/hapi__joi": "^17.1.4",
     "@types/lodash": "^4.14.159",
+    "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.733.0"
   },
   "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
