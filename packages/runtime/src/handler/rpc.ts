@@ -1,4 +1,5 @@
 import {
+  existsSync,
   readdirSync,
 } from 'fs';
 
@@ -8,6 +9,7 @@ import {
 } from 'path';
 
 import {
+  get,
   isArray,
   isString,
 } from 'lodash';
@@ -34,6 +36,7 @@ export interface Request {
   params: { [key: string]: any };
   envelope: Envelope;
   context: { [key: string]: any };
+  principalId?: string;
 }
 
 export default class RPC extends Http {
@@ -93,6 +96,43 @@ export default class RPC extends Http {
     return methodCache;
   }
 
+  async resolveAuthenticator(path: string): Promise<Function | Error> {
+    const pieces = path.split('/');
+    
+    pieces.push(`_${pieces.pop()}`);
+
+    const fullPath = join(
+       process.cwd(),
+       ...pieces,
+    );
+
+    if (!existsSync(fullPath)) {
+      throw new Error(`Authenticator function at path ${path} does not exist :(`);
+    }
+
+    const file = require(fullPath);
+
+    if (!file.handler) {
+      throw new Error(`Authenicator at ${path} does not export a function called "handler"`);
+    }
+
+    return file.handler as Function;
+  }
+
+  async resolvePrincipalId(
+    authenticatorPath: string,
+    authorizationHeader: string,
+    sourceEvent: { [key: string]: any }
+  ): Promise<string | undefined> {
+    const authenticator = await this.resolveAuthenticator(authenticatorPath) as Function;
+
+    return authenticator(
+      authorizationHeader,
+      this.context,
+      sourceEvent,
+    );
+  }
+
   async resolveMethod(envelope: Envelope): Promise<Method> {
     const methods = await this.collect();
   
@@ -141,9 +181,19 @@ export default class RPC extends Http {
         envelope.params,
       );
 
+      let principalId;
+
+      if (this.options?.authenticator) {
+        principalId = await this.resolvePrincipalId(
+          this.options!.authenticator!,
+          get(sourceEvent, 'headers.Authorization'),
+          sourceEvent,
+        );
+      }
+
       const result = await method.runner(
         ({
-          // principalId,
+          principalId,
           params,
           envelope,
           context: sourceEvent.requestContext,

@@ -100,11 +100,17 @@ export default class File {
   }
 
   static getTemplate(name: string): Function {
+    let final = name;
+
+    if (final === 'schedule') {
+      final = 'generic';
+    }
+
     const template = readFileSync(
       join(
         __dirname,
         'templates',
-        `${name}.js.template`,
+        `${final}.js.template`,
       ),
     )
       .toString();

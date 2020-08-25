@@ -50,7 +50,9 @@ export default class RPC {
   }
 
   getOptions(): object {
-    return {};
+    return {
+      auth: this.plugin.getCustomValue(Key.RpcAuthenticator),
+    };
   }
 
   getOutputFile(): string {

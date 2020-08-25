@@ -31,6 +31,7 @@ export enum Key {
   Rpc = 'ananke.rpc',
   RpcPath = 'ananke.rpc.path',
   RpcMethodSource = 'ananke.rpc.methods',
+  RpcAuthenticator = 'ananke.rpc.authenticator',
 };
 
 export default class Plugin {

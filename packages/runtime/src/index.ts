@@ -8,7 +8,7 @@ import RPC, {
 } from './handler/rpc';
 
 import Queue from './handler/queue';
-import Schedule from './handler/schedule';
+import Generic from './handler/generic';
 
 export namespace Request {
   export interface RPC extends RPCRequest {}
@@ -17,7 +17,7 @@ export namespace Request {
 const Handler = {
   RPC,
   Queue,
-  Schedule,
+  Generic,
 };
 
 export {

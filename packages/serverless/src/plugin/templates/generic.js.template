@@ -5,7 +5,7 @@ const runner = require('./<%= sourcePath %>').default;
 
 module.exports.handler = async event => (
   Context.exec(ctx => (
-    Runtime.Handler.Schedule.factory(
+    Runtime.Handler.Generic.factory(
       ctx,
       runner,
       <%= options %>,

@@ -7,6 +7,7 @@ interface Validation {
 
 interface Options {
   auth?: boolean;
+  authenticator?: string;
   validation?: Validation;
 }
 
