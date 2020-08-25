@@ -9,14 +9,20 @@ import RPC, {
   Request as RPCRequest,
 } from './handler/rpc';
 
+import REST, {
+  Request as RESTRequest,
+} from './handler/rest';
+
 import Queue from './handler/queue';
 import Generic from './handler/generic';
 
 export namespace Request {
   export interface RPC extends RPCRequest {}
+  export interface REST extends RESTRequest {}
 }
 
 const Handler = {
+  REST,
   RPC,
   Queue,
   Generic,
