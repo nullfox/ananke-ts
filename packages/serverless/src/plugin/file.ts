@@ -35,6 +35,7 @@ export enum Type {
   Schedule = 'schedule',
   Queue = 'queue',
   Method = 'method',
+  Generic = 'generic',
 }
 
 export default class File {
@@ -94,6 +95,8 @@ export default class File {
         return Type.Queue;
       case 'method':
         return Type.Method;
+      case 'generic':
+        return Type.Generic;
       default:
         return Type.Unknown;
     }
