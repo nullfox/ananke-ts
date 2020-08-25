@@ -198,7 +198,7 @@ export default class RPC extends Http {
       if (this.hasErrorHandler()) {
         const errorHandler = await this.requireErrorHandler() as Function;
 
-        boomed = await errorHandler(boomed, error, this.context);
+        boomed = await errorHandler(boomed, this.context);
       }
     
       if (boomed.isServer) {
