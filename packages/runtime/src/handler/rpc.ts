@@ -1,5 +1,4 @@
 import {
-  existsSync,
   readdirSync,
 } from 'fs';
 
@@ -105,10 +104,6 @@ export default class RPC extends Http {
        process.cwd(),
        ...pieces,
     );
-
-    if (!existsSync(fullPath)) {
-      throw new Error(`Authenticator function at path ${path} does not exist :(`);
-    }
 
     const file = require(fullPath);
 
