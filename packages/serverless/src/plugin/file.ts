@@ -156,6 +156,10 @@ export default class File {
       onError: this.plugin.getCustomValue(Key.OnErrorFunction),
     };
 
+    if (this.getType() === Type.REST) {
+      options.authenticator = this.plugin.getCustomValue(Key.RestAuthenticator);
+    }
+
     if (tags.params) {
       options.validation = fromPairs(
         tags.params.map((param: { [key: string]: string }) => (
