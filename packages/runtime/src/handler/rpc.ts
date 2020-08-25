@@ -15,7 +15,9 @@ import {
 
 import {
   boomify,
+  internal,
   notFound,
+  unauthorized,
 } from '@hapi/boom';
 
 import * as Joi from 'joi';
@@ -176,6 +178,7 @@ export default class RPC extends Http {
         envelope.params,
       );
 
+      // Resolve a principal id if we've supplied an authenticator
       let principalId;
 
       if (this.options?.authenticator) {
@@ -184,6 +187,15 @@ export default class RPC extends Http {
           get(sourceEvent, 'headers.Authorization'),
           sourceEvent,
         );
+      }
+
+      // If the method requires auth, ensure principalId exists
+      if (!!method.options?.auth && !principalId) {
+        if (!this.options?.authenticator) {
+          throw internal('A RPC method is requiring authentication but no authenticator has been setup');
+        }
+
+        throw unauthorized(`RPC method ${envelope.method} requires authentication`);
       }
 
       const result = await method.runner(
