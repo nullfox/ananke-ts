@@ -1,6 +1,6 @@
 {
   "name": "@ananke/config-ssm",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "ananke AWS SSM config",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
@@ -27,7 +27,7 @@
     "@types/lodash": "^4.14.159",
     "aws-sdk": "^2.733.0"
   },
-  "gitHead": "438f89ce40c1ef079dd6b5a44cc24529728f5eef",
+  "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
   "publishConfig": {
     "access": "public"
   }
