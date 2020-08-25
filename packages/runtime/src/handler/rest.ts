@@ -63,7 +63,7 @@ export default class REST extends Http {
     try {
       const payload = await REST.validateSchema(
         REST.schemaFromStrings(this.options?.validation),
-        event.body,
+        JSON.parse(event.body),
       );
 
       // Resolve a principal id if we've supplied an authenticator
