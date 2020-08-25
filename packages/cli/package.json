@@ -1,0 +1,31 @@
+{
+  "name": "@ananke/cli",
+  "version": "1.0.5",
+  "description": "Ananke CLI",
+  "author": "Ben Fox <ben.fox@sibly.co>",
+  "homepage": "",
+  "license": "ISC",
+  "bin": "lib/index.js",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.19"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.159"
+  },
+  "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
+  "publishConfig": {
+    "access": "public"
+  }
+}
