@@ -6,7 +6,7 @@ module.exports.handler = async event => (
   Context.exec(ctx => (
     Runtime.Handler.REST.factory(
       ctx,
-      () => '<%= path %>',
+      runner,
       <%= options %>,
     )
       .exec(event)
