@@ -30,6 +30,12 @@ export interface Envelope {
   params?: object | Array<any>;
 }
 
+export interface Request {
+  params: { [key: string]: any };
+  envelope: Envelope;
+  context: { [key: string]: any };
+}
+
 export default class RPC extends Http {
   static readFiles(path: string): Array<string> {
     return readdirSync(path)
@@ -136,12 +142,12 @@ export default class RPC extends Http {
       );
 
       const result = await method.runner(
-        {
+        ({
           // principalId,
           params,
           envelope,
           context: sourceEvent.requestContext,
-        },
+        } as Request),
         this.context,
         sourceEvent,
       );

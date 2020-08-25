@@ -2,9 +2,17 @@ import Bunyan from 'bunyan';
 
 import Context, { DefaultContext } from './context';
 
-import RPC, { Envelope } from './handler/rpc';
+import RPC, {
+  Envelope,
+  Request as RPCRequest,
+} from './handler/rpc';
+
 import Queue from './handler/queue';
 import Schedule from './handler/schedule';
+
+export namespace Request {
+  export interface RPC extends RPCRequest {}
+}
 
 const Handler = {
   RPC,
