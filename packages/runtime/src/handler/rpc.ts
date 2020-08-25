@@ -193,15 +193,15 @@ export default class RPC extends Http {
 
       return RPC.generateResponse(requestId, result);
     } catch (error) {
-      const boomed = boomify(error);
+      let boomed = boomify(error);
+
+      if (this.hasErrorHandler()) {
+        const errorHandler = await this.requireErrorHandler() as Function;
+
+        boomed = await errorHandler(boomed, error, this.context);
+      }
     
       if (boomed.isServer) {
-        if (this.hasErrorHandler()) {
-          const errorHandler = await this.requireErrorHandler() as Function;
-
-          await errorHandler(boomed, error, this.context);
-        }
-
         childLogger.error(
           { err: boomed },
           'Finished request with server error',
@@ -213,7 +213,7 @@ export default class RPC extends Http {
         );
       }
 
-      return RPC.generateResponse(requestId, error);
+      return RPC.generateResponse(requestId, boomed);
     }
   }
 
