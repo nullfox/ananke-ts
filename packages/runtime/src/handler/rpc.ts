@@ -9,6 +9,7 @@ import {
 
 import {
   get,
+  has,
   isArray,
   isString,
 } from 'lodash';
@@ -181,7 +182,7 @@ export default class RPC extends Http {
       // Resolve a principal id if we've supplied an authenticator
       let principalId;
 
-      if (this.options?.authenticator) {
+      if (this.options?.authenticator && has(sourceEvent, 'headers.Authorization')) {
         principalId = await this.resolvePrincipalId(
           this.options!.authenticator!,
           get(sourceEvent, 'headers.Authorization'),
