@@ -17,11 +17,18 @@ import {
   notFound,
 } from '@hapi/boom';
 
-import * as Joi from '@hapi/joi';
+import * as Joi from 'joi';
 
 import Http from './http';
 
 const methodCache = new Map();
+
+export interface Envelope {
+  id: string;
+  jsonrpc: string;
+  method: string;
+  params?: object | Array<any>;
+}
 
 export default class RPC extends Http {
   static readFiles(path: string): Array<string> {

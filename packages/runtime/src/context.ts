@@ -1,5 +1,9 @@
 import Bunyan from 'bunyan';
 
+export interface DefaultContext {
+  Logger: Bunyan;
+};
+
 export default class Context {
   name: string
   defaultContext: { [key: string]: any }

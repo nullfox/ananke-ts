@@ -14,10 +14,3 @@ interface Method {
   runner: Function;
   options?: Options;
 }
-
-interface Envelope {
-  id: string;
-  jsonrpc: string;
-  method: string;
-  params?: object | Array<any>;
-}

@@ -10,7 +10,7 @@ import {
 import {
   object,
   Schema,
-} from '@hapi/joi';
+} from 'joi';
 
 import {
   badRequest,

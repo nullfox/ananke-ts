@@ -1,6 +1,8 @@
-import Context from './context';
+import Bunyan from 'bunyan';
 
-import RPC from './handler/rpc';
+import Context, { DefaultContext } from './context';
+
+import RPC, { Envelope } from './handler/rpc';
 import Queue from './handler/queue';
 import Schedule from './handler/schedule';
 
@@ -11,6 +13,9 @@ const Handler = {
 };
 
 export {
+  Bunyan,
   Context,
+  DefaultContext,
+  Envelope,
   Handler,
 };

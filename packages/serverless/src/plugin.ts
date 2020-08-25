@@ -64,7 +64,7 @@ export default class Plugin {
 
     ok(
       this.hasCustomValue(Key.PsuedoName),
-      `${Key.PsuedoName} key must be set in serverless.yml (ex: custom.${Key.PsuedoName}: ananke`,
+      `${Key.PsuedoName} key must be set in serverless.yml (ex: custom.${Key.PsuedoName}: Ananke`,
     );
 
     const files = sync(`${this.getCustomValue(Key.FunctionSource)}/**/*.+(js|ts)`);

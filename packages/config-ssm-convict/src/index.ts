@@ -1,8 +1,10 @@
 import {
+  object as objectify,
+} from 'dot-object';
+
+import {
   chain,
-  forEach,
   has,
-  set,
 } from 'lodash';
 
 import SSM, {
@@ -10,7 +12,7 @@ import SSM, {
   Options,
 } from '@ananke/config-ssm';
 
-import convict from 'convict';
+import convict, { Config as ConvictConfig } from 'convict';
 
 const DEFAULTS = {
   env: {
@@ -40,12 +42,8 @@ export default class Config {
     this.ssm = SSM.factory(ssmOrUndefined);
   }
 
-  private convictify(secrets: object): convict.Config<any> {
-    const structured = {};
-
-    const merged = chain(DEFAULTS)
-      .merge(this.manifest)
-      .merge(secrets)
+  private convictify(secrets: object): ConvictConfig<any> {
+    const merged = chain(this.manifest)
       .mapValues((value, key) => (
         has(value, 'doc')
           ? value
@@ -56,19 +54,21 @@ export default class Config {
             env: key.split('.').join('_').toUpperCase(),
           }
       ))
+      .thru((manifest) => objectify(manifest))
+      .merge(DEFAULTS)
       .value();
 
-    forEach(merged, (value, key) => set(structured, key, value));
+    const config = convict(merged);
 
-    const config = convict(structured);
+    config.load(secrets);
     
     config.validate();
 
     return config;
   }
 
-  async fetch(prefix: string, options: Options = {}): Promise<object> {
-    const secrets = await this.ssm.fetchRaw(prefix, options);
+  async fetch(prefix: string, options: Options = {}): Promise<ConvictConfig<any>> {
+    const secrets = await this.ssm.fetch(prefix, options);
 
     return this.convictify(secrets);
   }
@@ -76,5 +76,6 @@ export default class Config {
 
 export {
   Client,
+  ConvictConfig,
 };
 

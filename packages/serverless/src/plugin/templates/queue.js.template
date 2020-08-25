@@ -1,4 +1,4 @@
-const Runtime = require('@foxface/runtime');
+const Runtime = require('@ananke/runtime');
 
 const Context = require('<%= contextPath %>').default;
 const runner = require('./<%= sourcePath %>').default;

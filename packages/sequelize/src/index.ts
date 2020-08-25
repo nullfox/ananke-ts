@@ -8,7 +8,11 @@ import{
 
 import {
   ConnectionOptions,
+  DataType,
+  DataTypes,
+  Dialect,
   Model,
+  Op,
   Sequelize,
 } from 'sequelize';
 
@@ -17,31 +21,55 @@ import {
   get,
   capitalize,
   has,
+  mapValues,
 } from 'lodash';
 
-export interface Models {
-  [key: string]: Model | Sequelize | typeof Sequelize
+export interface AdditionalConnectionOptions {
+  dialect: Dialect;
+  dialectOptions?: {
+    collate?: string;
+
+    [key: string]: any;
+  }
+
+  [key: string]: any;
 }
 
 export interface ModelConfig {
   [key: string]: { [key: string]: any }
 }
 
+export interface Models {
+  [key: string]: Model
+}
+
+export interface ModelStatic extends Model {
+  models?: Models;
+
+  associate?: Function;
+  setup(
+    connection: Sequelize,
+    dataTypes: { [key: string]: DataType },
+    modelConfig?: ModelConfig,
+  ): Model;
+}
+
 export default class ConnectionManager {
   connection: Sequelize
-  modelConfig: ModelConfig
 
-  static createConnection(options: ConnectionOptions, additional: { [key: string]: any }): Sequelize {
+  static createConnection(
+    options: ConnectionOptions,
+    additional?: AdditionalConnectionOptions
+  ): Sequelize {
     return new Sequelize(
       options.database!,
       options.username!,
       options.password,
       {
+        host: options.host,
         port: (options.port as number) || 3306,
-        dialect: additional.dialect || 'mysql',
-        dialectOptions: {
-          collate: 'utf8mb4_general_ci',
-        },
+        dialect: additional?.dialect || 'mysql',
+        dialectOptions: {},
         logging: console.log,
         define: {
           charset: 'utf8mb4',
@@ -52,45 +80,40 @@ export default class ConnectionManager {
     );
   }
 
-  static factory(connection: Sequelize, modelConfig: ModelConfig = {}): ConnectionManager {
-    return new ConnectionManager(connection, modelConfig);
+  static factory(connection: Sequelize): ConnectionManager {
+    return new ConnectionManager(connection);
   }
 
-  constructor(connection: Sequelize, modelConfig: ModelConfig = {}) {
+  constructor(connection: Sequelize) {
     this.connection = connection;
-    this.modelConfig = modelConfig;
   }
 
-  setup(models = {}): Models {
-    return chain(models)
-      .mapValues((model: Model, key: string) => {
-        if (has(model, 'init')) {
-          // @ts-ignore
-          model.init(this.connection, Sequelize, get(this.modelConfig, key, {}))
+  setup(models = {}, modelConfig: ModelConfig = {}): Models {
+    return mapValues(
+      models,
+      (model: ModelStatic, key: string) => {
+        if (has(model, 'setup')) {
+          model.setup(
+            this.connection,
+            get(modelConfig, key, {}),
+          )
         }
 
         if (has(model, 'associate')) {
-          // @ts-ignore
-          model.associate(models);
+          model.associate!(models);
         }
 
-        // Overload models onto the static
-        // @ts-ignore
         model.models = models;
 
         return model;
-      })
-      .merge({
-        Sequelize,
-        Connection: this.connection,
-      })
-      .value();
+      },
+    );
   }
 
   load(path: string): Models {
     const models = chain(readdirSync(path))
-      .filter(file => file !== 'index.js')
-      .map(file => (
+      .filter((file) => file !== 'index.js')
+      .map((file) => (
         [
           capitalize(file.split('.').shift()!),
           require(join(
@@ -105,3 +128,11 @@ export default class ConnectionManager {
     return this.setup(models);
   }
 }
+
+export {
+  DataType,
+  DataTypes,
+  Model,
+  Op,
+  Sequelize,
+};

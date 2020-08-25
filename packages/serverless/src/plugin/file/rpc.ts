@@ -10,6 +10,8 @@ import {
   writeFileSync,
 } from 'fs';
 
+import { sync } from 'mkdirp';
+
 import Plugin, { Key } from '../../plugin';
 import Handler from '../handler';
 
@@ -82,6 +84,9 @@ export default class RPC {
       options: JSON.stringify(this.getOptions()),
       path: resolve(this.plugin.getCustomValue(Key.RpcMethodSource)),
     };
+
+    // Ensures the directory exists...
+    sync(dirname(this.getOutputPath()));
   
     return writeFileSync(
       this.getOutputPath(),

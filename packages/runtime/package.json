@@ -19,10 +19,9 @@
   },
   "dependencies": {
     "@hapi/boom": "^9.1.0",
-    "@hapi/joi": "^17.1.1",
-    "@hapi/joi-date": "^2.0.1",
     "acorn": "^8.0.1",
     "bunyan": "^1.8.14",
+    "joi": "^17.2.1",
     "lodash": "^4.17.19"
   },
   "devDependencies": {

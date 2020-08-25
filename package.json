@@ -8,7 +8,12 @@
     "lerna": "^3.22.0",
     "typescript": "^3.9.7"
   },
-  "workspaces": [
-    "packages/*"
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "packages/runtime"
+    ]
+  }
 }

@@ -1,15 +1,15 @@
-import BaseJoi from '@hapi/joi';
-import JoiDate from '@hapi/joi-date';
+import BaseJoi from 'joi';
+// import JoiDate from '@hapi/joi-date';
 
 import {
   Parser,
 } from 'acorn';
 
 // Extended extendables
-let ExtendedJoi = BaseJoi.extend(JoiDate);
+// let ExtendedJoi = BaseJoi.extend(JoiDate);
 
 // Const assignment to make eslint happy
-const Joi = ExtendedJoi;
+const Joi = BaseJoi;
 
 const fromString = (string: string): BaseJoi.Schema => {
   const ast = Parser.parse(
@@ -25,6 +25,12 @@ const fromString = (string: string): BaseJoi.Schema => {
 
   while (current) {
     if (current.type === 'ExpressionStatement') {
+      if (current.expression.type === 'Identifier') {
+        parts.unshift({
+          fn: current.expression.name,
+        });
+      }
+
       current = current.expression;
     } else if (current.type === 'CallExpression') {
       const callee = current.callee;
@@ -62,8 +68,10 @@ const fromString = (string: string): BaseJoi.Schema => {
     }
   }
 
+  // @ts-ignore
   return parts.reduce(
     (rule, part) => (
+      // @ts-ignore
       rule[part.fn](...(part.args || []))
     ),
     Joi,
