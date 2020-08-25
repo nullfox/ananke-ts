@@ -178,6 +178,13 @@ export default class RPC extends Http {
         sourceEvent,
       );
 
+      childLogger.debug(
+        {
+          method: envelope.method,
+        },
+        'Finished request successfully',
+      );
+
       return RPC.generateResponse(requestId, result);
     } catch (error) {
       let boomed = boomify(error);

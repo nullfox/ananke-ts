@@ -96,6 +96,14 @@ export default class REST extends Http {
         event,
       );
 
+      childLogger.debug(
+        {
+          path: event.path,
+          method: event.httpMethod,
+        },
+        'Finished request successfully',
+      );
+
       const response = REST.generateResponse(result);
 
       return this.getResponder(
