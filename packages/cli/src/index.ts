@@ -51,8 +51,19 @@ const createRootDirectory = (name: string): string => {
 
 const createFileManager = (root: string, prefix: string = 'js'): { [key: string]: Function } => (
   {
+    copyRootFile(file: string): void {
+      const source = join(__dirname, '..', 'templates', file);
+      const destination = join(root, file);
+
+      const dir = dirname(destination);
+
+      mkdirp.sync(dir);
+
+      copyFileSync(source, destination);
+    },
+
     copyFile(file: string): void {
-      if (!/\.{1}ts|js$/.test(file)) {
+      if (!/\.{1}ts|js|json|yml$/.test(file)) {
         file = `${file}.${prefix}`;
       }
 
@@ -103,30 +114,37 @@ program
         '@tsconfig/node12',
         'typescript',
       );
+    } else {
+      devDeps.push(
+        '@babel/core',
+        '@babel/cli',
+        '@babel/preset-env',
+      );
     }
 
     execSync('npm install --save @ananke/runtime @ananke/config-ssm-convict @ananke/sequelize mysql2');
     execSync(`npm install --save-dev ${devDeps.join(' ')}`);
 
+    const packagePath = join(root, 'package.json');
+
+    const packageJson = JSON.parse(
+      readFileSync(packagePath).toString(),
+    );
+
+
     if (isTypescript) {
-      const packagePath = join(root, 'package.json');
-
-      const packageJson = JSON.parse(
-        readFileSync(packagePath).toString(),
-      );
-
-      // Setup build script
       packageJson.scripts.build = 'tsc';
-
-      writeFileSync(
-        packagePath,
-        JSON.stringify(packageJson, null, 4),
-      );
+    } else {
+      packageJson.scripts.build = 'babel src -d lib';
     }
 
+    writeFileSync(
+      packagePath,
+      JSON.stringify(packageJson, null, 4),
+    );
+
     // Copy files
-    fileManager.copyFile('tsconfig.json');
-    fileManager.copyFile('serverless.yml');
+    fileManager.copyRootFile('serverless.yml');
 
     // Ensure src/ dir exists
     mkdirp.sync(join(root, 'src'));
@@ -138,7 +156,10 @@ program
     fileManager.copyFile('src/models/member');
 
     if (isTypescript) {
+      fileManager.copyFile('tsconfig.json');
       fileManager.copyFile('src/global.d.ts');
+    } else {
+      fileManager.copyFile('babel.config.json');
     }
 
     execSync('npm run build');
