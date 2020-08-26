@@ -3,10 +3,7 @@ import { Context } from '@ananke/runtime';
 import Config, { Client } from '@ananke/config-ssm-convict';
 import ConnectionManager from '@ananke/sequelize';
 
-// Models should be imported, it's just defined here for example sake
-const Models = {
-  Coach: null, // Value should be a class extending Sequelize.Model
-};
+import * as Models from './models';
 
 export default Context.factory(
   'test'

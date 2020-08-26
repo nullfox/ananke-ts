@@ -110,6 +110,8 @@ program
     copyCliFile('src/context.ts', root);
     copyCliFile('src/functions/authenticator.ts', root);
     copyCliFile('src/functions/rpc/hello.world.ts', root);
+    copyCliFile('src/models/index.ts', root);
+    copyCliFile('src/models/member.ts', root);
 
     execSync('npm run build');
   });
