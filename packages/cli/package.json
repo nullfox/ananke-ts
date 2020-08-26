@@ -19,9 +19,14 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "lodash": "^4.17.19"
+    "commander": "^6.0.0",
+    "inquirer": "^7.3.3",
+    "lodash": "^4.17.19",
+    "minimist": "^1.2.5",
+    "mkdirp": "^1.0.4"
   },
   "devDependencies": {
+    "@types/inquirer": "^7.3.1",
     "@types/lodash": "^4.14.159"
   },
   "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
