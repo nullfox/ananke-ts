@@ -49,20 +49,24 @@ const createRootDirectory = (name: string): string => {
   }
 };
 
-const copyFile = (source: string, destination: string): void => {
-  const dir = dirname(destination);
+const createFileManager = (root: string, prefix: string = 'js'): { [key: string]: Function } => (
+  {
+    copyFile(file: string): void {
+      if (!/\.{1}ts|js$/.test(file)) {
+        file = `${file}.${prefix}`;
+      }
 
-  mkdirp.sync(dir);
+      const source = join(__dirname, '..', 'templates', prefix, file);
+      const destination = join(root, file);
 
-  copyFileSync(source, destination);
-};
+      const dir = dirname(destination);
 
-const copyCliFile = (file: string, destinationRoot: string): void => {
-  copyFile(
-    join(__dirname, '..', 'templates', file),
-    join(destinationRoot, file),
-  );
-};
+      mkdirp.sync(dir);
+
+      copyFileSync(source, destination);
+    },
+  }
+);
 
 const program = new Command();
 program.version('0.0.1');
@@ -70,48 +74,72 @@ program.version('0.0.1');
 program
   .command('init <name>')
   .description('Initialize an Ananke service')
+  .option('-t, --type <type>', 'Whether you want plain "js" or "ts" project generated. Defaults to "ts"', 'ts')
   .option('-p, --packages [package...]', 'Additional @ananke scoped packages to install ex: config-ssm-convict')
-  .action((name) => {
+  .action((name, cmd) => {
+    const isTypescript = cmd.type === 'ts';
+
     // Create the root dir
     const root = createRootDirectory(name);
 
     // Move into the new dir
     process.chdir(root);
 
+    const fileManager = createFileManager(root, cmd.type);
+
     // Initiate NPM'ness
     execSync('npm init --yes');
 
     // Install deps
+    const devDeps = [
+      '@ananke/serverless',
+      'serverless-offline',
+      'serverless-pseudo-parameters',
+      'aws-sdk',
+    ];
+
+    if (isTypescript) {
+      devDeps.push(
+        '@tsconfig/node12',
+        'typescript',
+      );
+    }
+
     execSync('npm install --save @ananke/runtime @ananke/config-ssm-convict @ananke/sequelize mysql2');
-    execSync('npm install --save-dev @ananke/serverless @tsconfig/node12 serverless-offline serverless-pseudo-parameters typescript aws-sdk');
+    execSync(`npm install --save-dev ${devDeps.join(' ')}`);
 
-    const packagePath = join(root, 'package.json');
+    if (isTypescript) {
+      const packagePath = join(root, 'package.json');
 
-    const packageJson = JSON.parse(
-      readFileSync(packagePath).toString(),
-    );
+      const packageJson = JSON.parse(
+        readFileSync(packagePath).toString(),
+      );
 
-    // Setup build script
-    packageJson.scripts.build = 'tsc';
+      // Setup build script
+      packageJson.scripts.build = 'tsc';
 
-    writeFileSync(
-      packagePath,
-      JSON.stringify(packageJson, null, 4),
-    );
+      writeFileSync(
+        packagePath,
+        JSON.stringify(packageJson, null, 4),
+      );
+    }
 
     // Copy files
-    copyCliFile('tsconfig.json', root);
-    copyCliFile('serverless.yml', root);
+    fileManager.copyFile('tsconfig.json');
+    fileManager.copyFile('serverless.yml');
 
     // Ensure src/ dir exists
     mkdirp.sync(join(root, 'src'));
 
-    copyCliFile('src/global.d.ts', root);
-    copyCliFile('src/context.ts', root);
-    copyCliFile('src/functions/authenticator.ts', root);
-    copyCliFile('src/functions/rpc/hello.world.ts', root);
-    copyCliFile('src/models/index.ts', root);
-    copyCliFile('src/models/member.ts', root);
+    fileManager.copyFile('src/context');
+    fileManager.copyFile('src/functions/authenticator');
+    fileManager.copyFile('src/functions/rpc/hello.world');
+    fileManager.copyFile('src/models/index');
+    fileManager.copyFile('src/models/member');
+
+    if (isTypescript) {
+      fileManager.copyFile('src/global.d.ts');
+    }
 
     execSync('npm run build');
   });
