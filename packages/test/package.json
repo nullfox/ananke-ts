@@ -1,10 +1,12 @@
 {
-  "name": "@ananke/runtime",
+  "name": "@ananke/test",
   "version": "1.0.29",
-  "description": "Serverless runtime",
+  "description": "Ananke test project",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
+  "private": true,
   "license": "ISC",
+  "bin": "lib/index.js",
   "main": "lib/index.js",
   "directories": {
     "lib": "lib",
@@ -18,20 +20,21 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "@ananke/config-ssm-convict": "^1.0.0",
+    "@ananke/runtime": "^1.0.29",
+    "@ananke/sequelize": "^1.0.0",
     "@hapi/boom": "^9.1.0",
-    "acorn": "^8.0.1",
-    "bunyan": "^1.8.14",
-    "joi": "^17.2.1",
+    "@sentry/node": "^5.21.4",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.19",
-    "uuid": "^8.3.0"
+    "mysql2": "^2.1.0"
   },
   "devDependencies": {
-    "@types/aws-sdk": "^2.7.0",
     "@types/bunyan": "^1.8.6",
-    "@types/hapi__joi": "^17.1.4",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/lodash": "^4.14.159",
-    "@types/uuid": "^8.3.0",
-    "aws-sdk": "^2.733.0"
+    "serverless-offline": "^6.5.0",
+    "serverless-pseudo-parameters": "^2.5.0"
   },
   "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
   "publishConfig": {
