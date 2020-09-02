@@ -1,17 +1,10 @@
-import BaseJoi from 'joi';
-// import JoiDate from '@hapi/joi-date';
+import Joi from 'joi';
 
 import {
   Parser,
 } from 'acorn';
 
-// Extended extendables
-// let ExtendedJoi = BaseJoi.extend(JoiDate);
-
-// Const assignment to make eslint happy
-const Joi = BaseJoi;
-
-const fromString = (string: string): BaseJoi.Schema => {
+const joiFromString = (string: string): Joi.Schema => {
   const ast = Parser.parse(
     string,
     {
@@ -36,10 +29,19 @@ const fromString = (string: string): BaseJoi.Schema => {
       const callee = current.callee;
       const object = callee.object;
 
-      parts.unshift({
-        fn: callee.property.name,
-        args: current.arguments.map((arg: { [key: string]: any }) => arg.value),
-      });
+      if (callee.property.name === 'items') {
+        parts.unshift({
+          fn: callee.property.name,
+          args: current.arguments.map((arg: any) => {
+            return joiFromString(string.slice(arg.start, arg.end));
+          }),
+        });
+      } else {
+        parts.unshift({
+          fn: callee.property.name,
+          args: current.arguments.map((arg: { [key: string]: any }) => arg.value),
+        });
+      }
 
       if (object && object.type === 'Identifier') {
         parts.unshift({
@@ -70,16 +72,15 @@ const fromString = (string: string): BaseJoi.Schema => {
 
   // @ts-ignore
   return parts.reduce(
-    (rule, part) => (
-      // @ts-ignore
-      rule[part.fn](...(part.args || []))
-    ),
+    (rule: { [key: string]: any }, part: any): any => {
+      if (!rule[(part.fn as string)]) {
+        throw new Error(`"${string}" is not a valid Joi validator string because of "${part.fn}" - are you sure thats a valid Joi function?`);
+      }
+
+      return rule[part.fn](...(part.args || []));
+    },
     Joi,
   );
 };
 
-export {
-  fromString,
-
-  Joi,
-};
+export default joiFromString;

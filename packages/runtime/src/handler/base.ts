@@ -3,13 +3,10 @@ import {
 } from 'path';
 
 import {
-  has,
   mapValues,
 } from 'lodash';
 
-import {
-  fromString,
-} from '../validation';
+import fromString from '../util/joiFromString';
 
 import {
   object,
@@ -95,11 +92,11 @@ export default class Base {
   }
 
   hasErrorHandler(): boolean {
-    return !!this.options.onError;
+    return !!this.options.errorHandler;
   }
 
   async requireErrorHandler(): Promise<Function | Error> {
-    return Base.requireHandler(this.options.onError!);
+    return Base.requireHandler(this.options.errorHandler!);
   }
 
   async exec(event: any): Promise<any> {

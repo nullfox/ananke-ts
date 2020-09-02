@@ -8,7 +8,7 @@ interface Validation {
 interface Options {
   auth?: boolean;
   authenticator?: string;
-  onError?: string;
+  errorHandler?: string;
   validation?: Validation;
 }
 

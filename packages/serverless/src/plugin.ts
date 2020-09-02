@@ -28,7 +28,7 @@ export enum Key {
 
   Context = 'ananke.function.context',
   FunctionSource = 'ananke.function.source',
-  OnErrorFunction = 'ananke.function.onError',
+  ErrorHandler = 'ananke.function.errorHandler',
 
   Rpc = 'ananke.rpc',
   RpcPath = 'ananke.rpc.path',
@@ -60,18 +60,24 @@ export default class Plugin {
 
     ok(
       this.hasCustomValue(Key.Context),
-      `${Key.Context} key must be set in serverless.yml (ex: custom.${Key.Context}: lib/context`,
+      `${Key.Context} key must be set in serverless.yml (ex: custom.${Key.Context}: lib/context)`,
     );
 
     ok(
       this.hasCustomValue(Key.FunctionSource),
-      `${Key.FunctionSource} key must be set in serverless.yml (ex: custom.${Key.FunctionSource}: lib/functions`,
+      `${Key.FunctionSource} key must be set in serverless.yml (ex: custom.${Key.FunctionSource}: lib/functions)`,
     );
 
     const files = sync(`${this.getCustomValue(Key.FunctionSource)}/**/*.+(js|ts)`);
     
     this.files = chain(files)
+      // All of our files write prepending with _
       .filter(file => !file.split('/').pop()?.startsWith('_'))
+
+      // Ignore TS declaration files
+      .filter(file => !file.endsWith('d.ts'))
+
+      // Turn them into File instances
       .map(file => File.factory(file, this))
       .value();
 
