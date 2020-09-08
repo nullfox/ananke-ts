@@ -26,9 +26,10 @@ export enum Key {
 
   PsuedoName = 'ananke.psuedoName',
 
-  Context = 'ananke.function.context',
   FunctionSource = 'ananke.function.source',
-  ErrorHandler = 'ananke.function.errorHandler',
+  Context = 'ananke.function.context',
+  PreMiddleware = 'ananke.function.middleware.pre',
+  PostMiddleware = 'ananke.function.middleware.post',
 
   Rpc = 'ananke.rpc',
   RpcPath = 'ananke.rpc.path',
@@ -90,7 +91,7 @@ export default class Plugin {
     return has(this.sls.service, `custom.${key}`);
   }
 
-  getCustomValue(key: Key, defaultValue?: string): string {
+  getCustomValue(key: Key, defaultValue?: any): string {
     return get(this.sls.service, `custom.${key}`, defaultValue);
   }
 

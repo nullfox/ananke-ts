@@ -3,6 +3,7 @@ import {
 } from 'dot-object';
 
 import {
+  capitalize,
   chain,
   has,
 } from 'lodash';
@@ -49,7 +50,7 @@ export default class Config {
           ? value
           : {
             doc: key.split('.').join(' '),
-            format: String,
+            format: typeof value ? (global as { [key: string]: any })[(capitalize(value) as string)] : String,
             default: value,
             env: key.split('.').join('_').toUpperCase(),
           }

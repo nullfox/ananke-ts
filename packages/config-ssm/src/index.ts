@@ -18,6 +18,7 @@ export interface Options {
   only?: RegExp
   except?: RegExp
   transformKey?: Function
+  sortKey?: Function
 }
 
 export default class SSM {
@@ -76,6 +77,14 @@ export default class SSM {
 
     if (has(options, 'except')) {
       filtered = omitBy(filtered, (val, key) => options.except!.test(key));
+    }
+
+    if (has(options, 'sortKey')) {
+      filtered = chain(filtered)
+        .toPairs()
+        .sortBy((pair) => options.sortKey!(pair[0]))
+        .fromPairs()
+        .value();
     }
 
     if (has(options, 'transformKey')) {

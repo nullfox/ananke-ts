@@ -58,7 +58,11 @@ export default class Base {
     });
   }
 
-  static requireHandler(path: string, underscoreName: boolean = true): Function | Error {
+  static requireFunction(path: string): Function | Error {
+    return require(path) as Function;
+  }
+
+  static requireHandler(path: string, handlerName = 'handler', underscoreName: boolean = true): Function | Error {
     let fullPath = path;
 
     if (underscoreName) {
@@ -74,11 +78,11 @@ export default class Base {
 
     const file = require(fullPath);
 
-    if (!file.handler) {
-      throw new Error(`Helper at ${path} does not export a function called "handler"`);
+    if (!file[handlerName]) {
+      throw new Error(`Helper at ${path} does not export a function called "${handlerName}"`);
     }
 
-    return file.handler as Function;
+    return file[handlerName] as Function;
   }
 
   static factory(context: any, runner: Function, options: Options = {}): Base {
@@ -89,14 +93,6 @@ export default class Base {
     this.context = context;
     this.runner = runner;
     this.options = options;
-  }
-
-  hasErrorHandler(): boolean {
-    return !!this.options.errorHandler;
-  }
-
-  async requireErrorHandler(): Promise<Function | Error> {
-    return Base.requireHandler(this.options.errorHandler!);
   }
 
   async exec(event: any): Promise<any> {

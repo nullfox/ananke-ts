@@ -24,6 +24,7 @@ import {
 import * as Joi from 'joi';
 
 import Http from './http';
+import { getHeapStatistics } from 'v8';
 
 const methodCache = new Map();
 
@@ -38,7 +39,9 @@ export interface Request {
   params: { [key: string]: any };
   envelope: Envelope;
   context: { [key: string]: any };
-  principalId?: string;
+  headers: { [key: string]: any };
+  principalId?: string | number;
+  [key: string]: any;
 }
 
 export default class RPC extends Http {
@@ -147,35 +150,30 @@ export default class RPC extends Http {
         envelope.params,
       );
 
-      // Resolve a principal id if we've supplied an authenticator
-      let principalId;
-
-      if (this.options?.authenticator && has(sourceEvent, 'headers.Authorization')) {
-        principalId = await this.resolvePrincipalId(
-          this.options!.authenticator!,
-          get(sourceEvent, 'headers.Authorization'),
-          sourceEvent,
-        );
-      }
+      const request = await this.reduceMiddleware(
+        await this.getPreMiddleware(),
+        ({
+          params,
+          envelope,
+          headers: sourceEvent.headers,
+          context: sourceEvent.requestContext,
+        } as Request)
+      );
 
       // If the method requires auth, ensure principalId exists
-      if (!!method.options?.auth && !principalId) {
-        if (!this.options?.authenticator) {
-          throw internal('A RPC method is requiring authentication but no authenticator has been setup');
-        }
-
+      if (!!method.options?.requireAuth && !request.principalId) {
         throw unauthorized(`RPC method ${envelope.method} requires authentication`);
       }
 
-      const result = await method.runner(
-        ({
-          principalId,
-          params,
-          envelope,
-          context: sourceEvent.requestContext,
-        } as Request),
+      let result = await method.runner(
+        (request as Request),
         this.context,
         sourceEvent,
+      );
+
+      result = await this.reduceMiddleware(
+        await this.getPostMiddleware(),
+        result,
       );
 
       childLogger.debug(
@@ -189,10 +187,15 @@ export default class RPC extends Http {
     } catch (error) {
       let boomed = boomify(error);
 
-      if (this.hasErrorHandler()) {
-        const errorHandler = await this.requireErrorHandler() as Function;
+      try {
+        boomed = await this.reduceMiddleware(
+          await this.getPostMiddleware(),
+          boomed,
+        );
 
-        boomed = await errorHandler(boomed, this.context);
+        boomed = boomify(boomed);
+      } catch (middleError) {
+        boomed = boomify(middleError);
       }
     
       if (boomed.isServer) {

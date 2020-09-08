@@ -52,7 +52,8 @@ export default class RPC {
   getOptions(): object {
     return {
       authenticator: this.plugin.getCustomValue(Key.RpcAuthenticator),
-      errorHandler: this.plugin.getCustomValue(Key.ErrorHandler),
+      preMiddleware: this.plugin.getCustomValue(Key.PreMiddleware, []),
+      postMiddleware: this.plugin.getCustomValue(Key.PostMiddleware, []),
     };
   }
 

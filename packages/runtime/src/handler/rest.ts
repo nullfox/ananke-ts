@@ -21,7 +21,9 @@ export interface Request {
   params?: { [key: string]: any };
   query?: { [key: string]: any };
   context: { [key: string]: any };
-  principalId?: string;
+  headers: { [key: string]: any };
+  principalId?: string | number;
+  [key: string]: any;
 }
 
 interface GeneratedResponse {
@@ -66,34 +68,29 @@ export default class REST extends Http {
         JSON.parse(event.body),
       );
 
-      // Resolve a principal id if we've supplied an authenticator
-      let principalId;
-
-      if (this.options?.authenticator && has(event, 'headers.Authorization')) {
-        principalId = await this.resolvePrincipalId(
-          this.options!.authenticator!,
-          get(event, 'headers.Authorization'),
-          event,
-        );
-      }
+      const request = await this.reduceMiddleware(
+        await this.getPreMiddleware(),
+        ({
+          payload,
+          headers: event.headers,
+          context: event.requestContext,
+        } as Request)
+      );
 
       // If the method requires auth, ensure principalId exists
-      if (!!this.options?.auth && !principalId) {
-        if (!this.options?.authenticator) {
-          throw internal('REST endpoint is requiring authentication but no authenticator has been setup');
-        }
-
+      if (!!this.options?.requireAuth && !request.principalId) {
         throw unauthorized(`REST endpoint ${event.httpMethod.toUpperCase()} ${event.path} requires authentication`);
       }
 
-      const result = await this.runner(
-        ({
-          principalId,
-          payload,
-          context: event.requestContext,
-        } as Request),
+      let result = await this.runner(
+        (request as Request),
         this.context,
         event,
+      );
+
+      result = await this.reduceMiddleware(
+        await this.getPostMiddleware(),
+        result,
       );
 
       childLogger.debug(
@@ -114,10 +111,15 @@ export default class REST extends Http {
     } catch (error) {
       let boomed = boomify(error);
 
-      if (this.hasErrorHandler()) {
-        const errorHandler = await this.requireErrorHandler() as Function;
+      try {
+        boomed = await this.reduceMiddleware(
+          await this.getPostMiddleware(),
+          boomed,
+        );
 
-        boomed = await errorHandler(boomed, this.context);
+        boomed = boomify(boomed);
+      } catch (middleError) {
+        boomed = boomify(middleError);
       }
     
       if (boomed.isServer) {

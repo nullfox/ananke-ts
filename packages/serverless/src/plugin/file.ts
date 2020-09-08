@@ -152,8 +152,9 @@ export default class File {
     const tags: { [key: string]: any } = this.getTags();
   
     const options: { [key: string]: any } = {
-      auth: get(tags, 'auth') !== 'false',
-      errorHandler: this.plugin.getCustomValue(Key.ErrorHandler),
+      requireAuth: get(tags, 'auth') !== 'false',
+      preMiddleware: this.plugin.getCustomValue(Key.PreMiddleware, []),
+      postMiddleware: this.plugin.getCustomValue(Key.PostMiddleware, []),
     };
 
     if (this.getType() === Type.REST) {

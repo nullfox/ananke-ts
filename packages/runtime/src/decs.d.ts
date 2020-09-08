@@ -6,9 +6,10 @@ interface Validation {
 }
 
 interface Options {
-  auth?: boolean;
+  requireAuth?: boolean;
   authenticator?: string;
-  errorHandler?: string;
+  preMiddleware?: Array<string>;
+  postMiddleware?: Array<string>;
   validation?: Validation;
 }
 
