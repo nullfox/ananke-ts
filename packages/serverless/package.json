@@ -1,6 +1,6 @@
 {
   "name": "@ananke/serverless",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Serverless plugin",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
@@ -27,7 +27,7 @@
     "@types/glob": "^7.1.3",
     "@types/lodash": "^4.14.159"
   },
-  "gitHead": "e43f8e3e2432ebf8d07f977b4398d53f7976e51d",
+  "gitHead": "23ada6c21796bd5d58bdefe20933d7d95ca2defe",
   "publishConfig": {
     "access": "public"
   }
