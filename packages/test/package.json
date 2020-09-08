@@ -1,6 +1,6 @@
 {
   "name": "@ananke/test",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Ananke test project",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
@@ -20,8 +20,8 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@ananke/config-ssm-convict": "^1.0.0",
-    "@ananke/runtime": "^1.0.29",
+    "@ananke/config-ssm-convict": "^1.0.30",
+    "@ananke/runtime": "^1.0.30",
     "@ananke/sequelize": "^1.0.0",
     "@hapi/boom": "^9.1.0",
     "@sentry/node": "^5.21.4",
