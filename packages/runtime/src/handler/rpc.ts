@@ -24,7 +24,6 @@ import {
 import * as Joi from 'joi';
 
 import Http from './http';
-import { getHeapStatistics } from 'v8';
 
 const methodCache = new Map();
 
@@ -88,17 +87,19 @@ export default class RPC extends Http {
   }
 
   async collect(): Promise<Map<string, string>> {
-    if (methodCache.size === 0) {
-      const result: string | Array<string> = await this.runner();
+    const result: string | Array<string> = await this.runner();
 
-      const fileNames: Array<string> = isString(result) ? RPC.readFiles(result) : result;
+    if (!methodCache.has(result)) {
+      methodCache.set(result, new Map());
+
+      const fileNames: Array<string> = RPC.readFiles(result as string);
 
       fileNames.forEach((file: string) => {
-        methodCache.set(basename(file.replace(/\.ts|\.js/, '')).slice(1), file);
+        methodCache.get(result).set(basename(file.replace(/\.ts|\.js/, '')).slice(1), file);
       });
     }
 
-    return methodCache;
+    return methodCache.get(result);
   }
 
   async resolveMethod(envelope: Envelope): Promise<Method> {
