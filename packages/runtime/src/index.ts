@@ -2,6 +2,8 @@ import Bunyan from 'bunyan';
 
 import { Boom } from '@hapi/boom';
 
+import Joi from '@hapi/joi';
+
 import Context, { DefaultContext } from './context';
 
 import RPC, {
@@ -35,4 +37,5 @@ export {
   DefaultContext,
   Envelope,
   Handler,
+  Joi,
 };
