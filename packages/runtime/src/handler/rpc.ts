@@ -112,7 +112,7 @@ export default class RPC extends Http {
         runner: (call: any) => (
           RPC.generateResponse(
             call.id,
-            notFound(`Method ${call.method} does not exist`),
+            notFound(`Method ${envelope.method} does not exist`),
           )
         ),
       };

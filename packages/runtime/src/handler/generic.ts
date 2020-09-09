@@ -9,6 +9,7 @@ export default class Generic extends Base {
     return this.runner(
       event,
       this.context,
+      this.options,
     );
   }
 }
