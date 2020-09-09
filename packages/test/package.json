@@ -1,6 +1,6 @@
 {
   "name": "@ananke/test",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "Ananke test project",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@ananke/config-ssm-convict": "^1.0.33",
-    "@ananke/runtime": "^1.0.33",
+    "@ananke/runtime": "^1.0.34",
     "@ananke/sequelize": "^1.0.33",
     "@hapi/boom": "^9.1.0",
     "@sentry/node": "^5.21.4",
