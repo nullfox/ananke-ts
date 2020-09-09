@@ -1,6 +1,6 @@
 {
   "name": "@ananke/runtime",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "Serverless runtime",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
@@ -33,7 +33,7 @@
     "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.733.0"
   },
-  "gitHead": "23ada6c21796bd5d58bdefe20933d7d95ca2defe",
+  "gitHead": "61824a5e7b1d649cae14aa183227f9954382f032",
   "publishConfig": {
     "access": "public"
   }

@@ -1,6 +1,6 @@
 {
   "name": "@ananke/config-ssm",
-  "version": "1.0.31",
+  "version": "1.0.33",
   "description": "ananke AWS SSM config",
   "author": "Ben Fox <ben.fox@sibly.co>",
   "homepage": "",
