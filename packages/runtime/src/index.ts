@@ -1,6 +1,6 @@
 import Bunyan from 'bunyan';
 
-import { Boom } from '@hapi/boom';
+import Boom from '@hapi/boom';
 
 import Joi from '@hapi/joi';
 
