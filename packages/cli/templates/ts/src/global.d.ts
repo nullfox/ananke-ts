@@ -11,11 +11,18 @@ namespace Request {
   interface REST extends RESTRequest {}
 }
 
+interface DecodedJWT {
+  sub: string | number;
+}
+
 type Config = import('@ananke/config-ssm-convict').ConvictConfig;
 
 interface Ctx {
   Logger: Bunyan;
   Config: Config;
   Database: Models;
+  JWT: {
+    verify: (string) => Promise<DecodedJWT | Error>
+  };
   // Add additional types that exist on your Context here...
 }

@@ -122,7 +122,7 @@ program
       );
     }
 
-    execSync('npm install --save @ananke/runtime @ananke/config-ssm-convict @ananke/sequelize mysql2');
+    execSync('npm install --save @ananke/runtime @ananke/config-ssm-convict @ananke/sequelize mysql2 @hapi/boom');
     execSync(`npm install --save-dev ${devDeps.join(' ')}`);
 
     const packagePath = join(root, 'package.json');
@@ -149,7 +149,7 @@ program
     // Ensure src/ dir exists
     mkdirp.sync(join(root, 'src'));
 
-    fileManager.copyFile('src/context');
+    fileManager.copyFile('src/context/');
     fileManager.copyFile('src/functions/authenticator');
     fileManager.copyFile('src/functions/rpc/hello.world');
     fileManager.copyFile('src/models/index');
