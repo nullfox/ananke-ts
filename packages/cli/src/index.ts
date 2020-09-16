@@ -57,7 +57,6 @@ program
   .description('Initialize an Ananke service')
   .option('-t, --type <type>', 'Whether you want plain "js" or "ts" project generated. Defaults to "ts"', 'ts')
   .option('-p, --packages [package...]', 'Additional @ananke scoped packages to install ex: config-ssm-convict')
-  .option('-d, --database <adapter>', 'Supply a Sequelize adapter module to pull install/setup database access')
   .action((name, cmd) => {
     const isTypescript = cmd.type === 'ts';
 
@@ -96,27 +95,6 @@ program
       '@ananke/config-ssm-convict',
       '@hapi/boom',
     ];
-
-    const validDatabaseAdapters = [
-      'pg',
-      'mysql2',
-      'mariadb',
-      'sqlite3',
-      'tedious',
-    ];
-
-    if (!validDatabaseAdapters.includes(cmd.database)) {
-      throw new RangeError(`database must be one of ${validDatabaseAdapters.join(', ')}`);
-    }
-
-    prodDeps.push(
-      '@ananke/sequelize',
-      cmd.database,
-    );
-
-    if (cmd.database === 'pg') {
-      prodDeps.push('pg-hstore');
-    }
 
     execSync(`npm install --save ${prodDeps.join(' ')}`);
     execSync(`npm install --save-dev ${devDeps.join(' ')}`);
