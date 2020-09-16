@@ -4,8 +4,6 @@ type RPCRequest = import('@ananke/runtime').Request.RPC;
 type RESTRequest = import('@ananke/runtime').Request.REST;
 type Boom = import('@ananke/runtime').Boom;
 
-type Models = import('./models').Models;
-
 namespace Request {
   interface RPC extends RPCRequest {}
   interface REST extends RESTRequest {}

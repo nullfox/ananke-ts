@@ -143,8 +143,6 @@ export default class RPC extends Http {
 
       return RPC.generateResponse(requestId, internal(`Context could not be resolved: ${error.message}`));
     }
-
-    console.log('=== RESOLVED CONTEXT', context);
     
     // Create a child logger attached to the requestId
     const childLogger = context.Logger.child({ requestId });
@@ -161,8 +159,6 @@ export default class RPC extends Http {
         RPC.schemaFromStrings(method.options?.validation),
         envelope.params,
       );
-
-      console.log('=== ABOUT TO REDEUCE MIDDLEWARE', method);
 
       const request = await this.reduceMiddleware(
         await this.getPreMiddleware(),

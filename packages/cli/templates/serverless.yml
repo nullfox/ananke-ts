@@ -29,7 +29,6 @@ custom:
       source: './lib/functions'
       context:
         Config: './lib/context/config'
-        Database: './lib/context/database'
     http:
       middleware:
         pre:

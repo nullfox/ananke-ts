@@ -123,14 +123,9 @@ export default class Base {
   }
 
   async resolveContext(): Promise<{ [key: string]: any }> {
-    // @ts-ignore
-    const chain = process.contextChain || false;
-
-    if (!chain) {
-      console.log('=== Starting Context Resolution - Context does not exist');
-
+    if (!contextChain) {
       // @ts-ignore
-      process.contextChain = Promise.resolve({});
+      contextChain = Promise.resolve({});
 
       const context = map(
         this.options.context || {},
@@ -148,8 +143,7 @@ export default class Base {
       });
 
       context.forEach(({ key, handler }) => {
-        // @ts-ignore
-        process.contextChain = process.contextChain!.then(async (ctx) => {
+        contextChain = contextChain!.then(async (ctx) => {
           if (isFunction(handler)) {
             handler = handler as Function;
           } else {
@@ -165,9 +159,8 @@ export default class Base {
         });
       });
     }
-
-    // @ts-ignore
-    return process.contextChain;
+  
+    return contextChain;
   }
 
   async exec(event: any): Promise<any> {

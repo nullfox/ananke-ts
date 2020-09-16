@@ -49,36 +49,6 @@ const createRootDirectory = (name: string): string => {
   }
 };
 
-const createFileManager = (root: string, prefix: string = 'js'): { [key: string]: Function } => (
-  {
-    copyRootFile(file: string): void {
-      const source = join(__dirname, '..', 'templates', file);
-      const destination = join(root, file);
-
-      const dir = dirname(destination);
-
-      mkdirp.sync(dir);
-
-      copyFileSync(source, destination);
-    },
-
-    copyFile(file: string): void {
-      if (!/\.{1}ts|js|json|yml$/.test(file)) {
-        file = `${file}.${prefix}`;
-      }
-
-      const source = join(__dirname, '..', 'templates', prefix, file);
-      const destination = join(root, file);
-
-      const dir = dirname(destination);
-
-      mkdirp.sync(dir);
-
-      copyFileSync(source, destination);
-    },
-  }
-);
-
 const program = new Command();
 program.version('0.0.1');
 
@@ -87,6 +57,7 @@ program
   .description('Initialize an Ananke service')
   .option('-t, --type <type>', 'Whether you want plain "js" or "ts" project generated. Defaults to "ts"', 'ts')
   .option('-p, --packages [package...]', 'Additional @ananke scoped packages to install ex: config-ssm-convict')
+  .option('-d, --database <adapter>', 'Supply a Sequelize adapter module to pull install/setup database access')
   .action((name, cmd) => {
     const isTypescript = cmd.type === 'ts';
 
@@ -95,8 +66,6 @@ program
 
     // Move into the new dir
     process.chdir(root);
-
-    const fileManager = createFileManager(root, cmd.type);
 
     // Initiate NPM'ness
     execSync('npm init --yes');
@@ -122,7 +91,34 @@ program
       );
     }
 
-    execSync('npm install --save @ananke/runtime @ananke/config-ssm-convict @ananke/sequelize mysql2 @hapi/boom');
+    const prodDeps = [
+      '@ananke/runtime',
+      '@ananke/config-ssm-convict',
+      '@hapi/boom',
+    ];
+
+    const validDatabaseAdapters = [
+      'pg',
+      'mysql2',
+      'mariadb',
+      'sqlite3',
+      'tedious',
+    ];
+
+    if (!validDatabaseAdapters.includes(cmd.database)) {
+      throw new RangeError(`database must be one of ${validDatabaseAdapters.join(', ')}`);
+    }
+
+    prodDeps.push(
+      '@ananke/sequelize',
+      cmd.database,
+    );
+
+    if (cmd.database === 'pg') {
+      prodDeps.push('pg-hstore');
+    }
+
+    execSync(`npm install --save ${prodDeps.join(' ')}`);
     execSync(`npm install --save-dev ${devDeps.join(' ')}`);
 
     const packagePath = join(root, 'package.json');
@@ -130,7 +126,6 @@ program
     const packageJson = JSON.parse(
       readFileSync(packagePath).toString(),
     );
-
 
     if (isTypescript) {
       packageJson.scripts.build = 'tsc';
@@ -143,26 +138,7 @@ program
       JSON.stringify(packageJson, null, 4),
     );
 
-    // Copy files
-    fileManager.copyRootFile('serverless.yml');
-
-    // Ensure src/ dir exists
-    mkdirp.sync(join(root, 'src'));
-
-    fileManager.copyFile('src/context/config');
-    fileManager.copyFile('src/functions/middleware/auth');
-    fileManager.copyFile('src/functions/rpc/hello.world');
-    fileManager.copyFile('src/functions/rpc/user.me');
-    fileManager.copyFile('src/models/index');
-    fileManager.copyFile('src/models/member');
-
-    if (isTypescript) {
-      fileManager.copyFile('tsconfig.json');
-      fileManager.copyFile('src/global.d.ts');
-    } else {
-      fileManager.copyFile('babel.config.json');
-    }
-
+    execSync(`cp -r templates/${isTypescript ? 'ts' : 'js'}/* ${root}`);
     execSync('npm run build');
   });
 
