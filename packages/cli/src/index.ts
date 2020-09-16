@@ -116,7 +116,7 @@ program
       JSON.stringify(packageJson, null, 4),
     );
 
-    execSync(`cp -r ${__dirname}/templates/${isTypescript ? 'ts' : 'js'}/* ${root}`);
+    execSync(`cp -r ${__dirname}/../templates/${isTypescript ? 'ts' : 'js'}/* ${root}`);
     execSync('npm run build');
   });
 
