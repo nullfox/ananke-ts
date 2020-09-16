@@ -39,7 +39,11 @@ const joiFromString = (string: string): Joi.Schema => {
       } else {
         parts.unshift({
           fn: callee.property.name,
-          args: current.arguments.map((arg: { [key: string]: any }) => arg.value),
+          args: current.arguments.map((arg: { [key: string]: any }) => (
+            arg.type && arg.type === 'Identifier'
+              ? joiFromString(string.slice(arg.start, arg.end))
+              : arg.value
+          )),
         });
       }
 

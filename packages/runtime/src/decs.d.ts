@@ -7,7 +7,8 @@ interface Validation {
 
 interface Options {
   requireAuth?: boolean;
-  authenticator?: string;
+  name?: string,
+  context?: { [key: string]: string | Function };
   preMiddleware?: Array<string>;
   postMiddleware?: Array<string>;
   validation?: Validation;

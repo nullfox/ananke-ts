@@ -28,9 +28,11 @@ custom:
     function:
       context: './lib/context'
       source: './lib/functions'
+      middleware:
+        pre:
+          - './lib/functions/middleware/auth'
+        post:
+          - './lib/functions/middleware/error'
     rpc:
       path: /
       methods: './lib/functions/rpc'
-      authenticator: './lib/functions/authenticator'
-    rest:
-      authenticator: './lib/functions/authenticator'

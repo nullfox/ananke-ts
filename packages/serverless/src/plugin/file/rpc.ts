@@ -51,9 +51,10 @@ export default class RPC {
 
   getOptions(): object {
     return {
-      authenticator: this.plugin.getCustomValue(Key.RpcAuthenticator),
-      preMiddleware: this.plugin.getCustomValue(Key.PreMiddleware, []),
-      postMiddleware: this.plugin.getCustomValue(Key.PostMiddleware, []),
+      name: this.plugin.getSlsValue('service.name'),
+      context: this.plugin.getCustomValue(Key.Context),
+      preMiddleware: this.plugin.getCustomValue(Key.HttpPreMiddleware, []),
+      postMiddleware: this.plugin.getCustomValue(Key.HttpPostMiddleware, []),
     };
   }
 
@@ -71,11 +72,6 @@ export default class RPC {
   write(): void {
     const tmpl = File.getTemplate(this.getType());
 
-    const contextPath = relative(
-      resolve(dirname(this.getPath())),
-      resolve(this.plugin.getCustomValue(Key.Context)),
-    );
-
     const sourcePath = relative(
       resolve(dirname(this.getPath())),
       resolve(this.getPath()),
@@ -83,7 +79,6 @@ export default class RPC {
       .replace(/\.ts|\.js/, '');
 
     const replacements = {
-      contextPath: contextPath,
       sourcePath: sourcePath,
       options: JSON.stringify(this.getOptions()),
       path: resolve(this.plugin.getCustomValue(Key.RpcMethodSource)),

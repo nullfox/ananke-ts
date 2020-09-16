@@ -82,8 +82,8 @@ export default class RPC extends Http {
     return payload;
   }
 
-  static factory(context: any, runner: Function, options: object = {}): RPC {
-    return new RPC(context, runner, options);
+  static factory(runner: Function, options: object = {}): RPC {
+    return new RPC(runner, options);
   }
 
   async collect(): Promise<Map<string, string>> {
@@ -129,12 +129,23 @@ export default class RPC extends Http {
   async callMethod(
     method: Method,
     envelope: Envelope,
-    context: { [key: string]: any },
     sourceEvent: { [key: string]: any },
   ): Promise<object> {
     // Use the id from the envelope
     const requestId = envelope.id;
 
+    let context: any;
+
+    try {
+      context = await this.resolveContext();
+    } catch (error) {
+      this.logger.error(error);
+
+      return RPC.generateResponse(requestId, internal(`Context could not be resolved: ${error.message}`));
+    }
+
+    console.log('=== RESOLVED CONTEXT', context);
+    
     // Create a child logger attached to the requestId
     const childLogger = context.Logger.child({ requestId });
 
@@ -150,6 +161,8 @@ export default class RPC extends Http {
         RPC.schemaFromStrings(method.options?.validation),
         envelope.params,
       );
+
+      console.log('=== ABOUT TO REDEUCE MIDDLEWARE', method);
 
       const request = await this.reduceMiddleware(
         await this.getPreMiddleware(),
@@ -168,7 +181,7 @@ export default class RPC extends Http {
 
       let result = await method.runner(
         (request as Request),
-        this.context,
+        context,
         sourceEvent,
       );
 
@@ -233,7 +246,6 @@ export default class RPC extends Http {
         return this.callMethod(
           method,
           envelope,
-          this.context,
           event,
         );
       })

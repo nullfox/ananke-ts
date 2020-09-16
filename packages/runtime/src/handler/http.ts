@@ -3,7 +3,6 @@ import {
 } from 'lodash';
 
 import Base from './base';
-import { allow } from '@hapi/joi';
 
 class Responder {
   body: object | string
@@ -37,8 +36,8 @@ export default class Http extends Base {
   preMiddleware?: Array<Function>;
   postMiddleware?: Array<Function>;
 
-  static factory(context: any, runner: Function): Http {
-    return new Http(context, runner);
+  static factory(runner: Function): Http {
+    return new Http(runner);
   }
 
   async getPreMiddleware(): Promise<Array<Function>> {
@@ -66,12 +65,14 @@ export default class Http extends Base {
   }
 
   async reduceMiddleware(middleware: Array<Function> = [], object: any, allowErrors: boolean = false): Promise<any> {
+    const context = await this.resolveContext();
+
     let result = object;
 
     await Promise.all(
       middleware.map(async (fn) => {
         try {
-          result = await fn(result, this.context);
+          result = await fn(result, context);
         } catch (error) {
           if (allowErrors) {
             result = error;
@@ -87,20 +88,6 @@ export default class Http extends Base {
 
   getResponder(payload: object, headers: object = {}, statusCode: number = 200): Responder {
     return new Responder(payload, headers, statusCode);
-  }
-
-  async resolvePrincipalId(
-    authenticatorPath: string,
-    authorizationHeader: string,
-    sourceEvent: { [key: string]: any }
-  ): Promise<string | undefined> {
-    const authenticator = await Http.requireHandler(authenticatorPath) as Function;
-
-    return authenticator(
-      authorizationHeader,
-      this.context,
-      sourceEvent,
-    );
   }
 }
 

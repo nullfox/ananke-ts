@@ -44,15 +44,25 @@ export default class REST extends Http {
     };
   }
 
-  static factory(context: any, runner: Function, options: object = {}): REST {
-    return new REST(context, runner, options);
+  static factory(runner: Function, options: object = {}): REST {
+    return new REST(runner, options);
   }
 
   async exec(event: any): Promise<any> {
     const requestId = v4();
 
+    let context: any;
+
+    try {
+      context = await this.resolveContext();
+    } catch (error) {
+      this.logger.error(error);
+
+      return REST.generateResponse(internal(`Context could not be resolved: ${error.message}`));
+    }
+
     // Create a child logger attached to the requestId
-    const childLogger = this.context.Logger.child({ requestId });
+    const childLogger = context.Logger.child({ requestId });
 
     childLogger.debug(
       {
@@ -84,7 +94,7 @@ export default class REST extends Http {
 
       let result = await this.runner(
         (request as Request),
-        this.context,
+        context,
         event,
       );
 

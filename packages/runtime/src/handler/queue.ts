@@ -2,6 +2,10 @@ import {
   SQS,
 } from 'aws-sdk';
 
+import {
+  internal,
+} from '@hapi/boom';
+
 import Base from './base';
 
 interface SQSRecord {
@@ -45,17 +49,27 @@ class Helper {
 export default class Queue extends Base {
   sqs: SQS
 
-  static factory(context: any, runner: Function, options: Options = {}): Queue {
-    return new Queue(context, runner, options);
+  static factory(runner: Function, options: Options = {}): Queue {
+    return new Queue(runner, options);
   }
 
-  constructor(context: any, runner: Function, options: Options = {}) {
-    super(context, runner, options);
+  constructor(runner: Function, options: Options = {}) {
+    super(runner, options);
 
     this.sqs = new SQS();
   }
 
   async exec(event: any): Promise<any> {
+    let context: any;
+
+    try {
+      context = await this.resolveContext();
+    } catch (error) {
+      this.logger.error(error);
+
+      throw internal(`Context could not be resolved: ${error.message}`);
+    }
+
     return Promise.all(
       event.Records.map(async (message: any) => {
         const data = JSON.parse(message.body);
@@ -67,7 +81,7 @@ export default class Queue extends Base {
 
         return this.runner(
           params,
-          this.context,
+          context,
           Helper.factory(this.sqs, message),
           message,
           event,

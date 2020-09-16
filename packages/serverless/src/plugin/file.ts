@@ -148,18 +148,29 @@ export default class File {
     return Handler.factory(this, this.plugin);
   }
 
+  isHttp(): boolean {
+    return [
+      Type.RPC,
+      Type.REST,
+    ].includes(this.getType());
+  }
+
   getOptions(): object {
     const tags: { [key: string]: any } = this.getTags();
   
     const options: { [key: string]: any } = {
       requireAuth: get(tags, 'auth') !== 'false',
-      preMiddleware: this.plugin.getCustomValue(Key.PreMiddleware, []),
-      postMiddleware: this.plugin.getCustomValue(Key.PostMiddleware, []),
+      name: this.plugin.getSlsValue('service.name'),
+      context: this.plugin.getCustomValue(Key.Context),
+      ...(
+        this.isHttp()
+          ? ({
+            preMiddleware: this.plugin.getCustomValue(Key.HttpPreMiddleware, []),
+            postMiddleware: this.plugin.getCustomValue(Key.HttpPostMiddleware, []),
+          })
+          : {}
+      ),
     };
-
-    if (this.getType() === Type.REST) {
-      options.authenticator = this.plugin.getCustomValue(Key.RestAuthenticator);
-    }
 
     if (tags.params) {
       options.validation = fromPairs(
@@ -192,11 +203,6 @@ export default class File {
   write(): void {
     const tmpl = File.getTemplate(this.type);
 
-    const contextPath = relative(
-      resolve(dirname(this.getPath())),
-      resolve(this.plugin.getCustomValue(Key.Context)),
-    );
-
     const sourcePath = relative(
       resolve(dirname(this.getPath())),
       resolve(this.getPath()),
@@ -204,7 +210,6 @@ export default class File {
       .replace(/\.ts|\.js/, '');
 
     const replacements = {
-      contextPath: contextPath,
       sourcePath: sourcePath,
       options: JSON.stringify(this.getOptions()),
     };

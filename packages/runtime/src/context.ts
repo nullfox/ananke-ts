@@ -36,6 +36,17 @@ export default class Context {
     );
   }
 
+  tap(fn: Function): Context {
+    this.registry.push({
+      key: '_tap',
+      fn,
+    });
+
+    this.chain = undefined;
+
+    return this;
+  }
+
   inject(key: string, fn: Function): Context {
     this.registry.push({
       key,
@@ -52,14 +63,18 @@ export default class Context {
       let chain = Promise.resolve(this.defaultContext);
 
       this.registry.forEach(({ key, fn }) => {
-        chain = chain.then(async (context) => (
-          Object.assign(
+        chain = chain.then(async (context) => {
+          if (key === '_tap') {
+            await fn(context);
+          }
+
+          return Object.assign(
             context,
             {
               [key]: await fn(context),
             },
-          )
-        ));
+          );
+        });
       });
 
       this.chain = chain;

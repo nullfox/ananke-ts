@@ -1,16 +1,12 @@
 const Runtime = require('@ananke/runtime');
 
-const Context = require('<%= contextPath %>').default;
 const runner = require('./<%= sourcePath %>').default;
 
 module.exports.handler = async event => (
-  Context.exec(ctx => (
-    Runtime.Handler.REST.factory(
-      ctx,
-      runner,
-      <%= options %>,
-    )
-      .exec(event)
-      .then(responder => responder.toGateway())
-  ))
+  Runtime.Handler.REST.factory(
+    runner,
+    <%= options %>,
+  )
+    .exec(event)
+    .then(responder => responder.toGateway())
 );

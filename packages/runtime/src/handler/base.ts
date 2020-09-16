@@ -1,8 +1,11 @@
 import {
   join,
+  resolve,
 } from 'path';
 
 import {
+  isFunction,
+  map,
   mapValues,
 } from 'lodash';
 
@@ -17,10 +20,14 @@ import {
   badRequest,
 } from '@hapi/boom';
 
+import Bunyan from 'bunyan';
+
+let contextChain: Promise<any> | null = null;
+
 export default class Base {
-  context: any
   runner: Function
   options: Options
+  logger: Bunyan
 
   static schemaFromStrings(strings: Validation | undefined): Schema {
     if (!strings) {
@@ -62,8 +69,11 @@ export default class Base {
     return require(path) as Function;
   }
 
-  static requireHandler(path: string, handlerName = 'handler', underscoreName: boolean = true): Function | Error {
-    let fullPath = path;
+  static requireHandler(path: string, handlerName: string | null = 'handler', underscoreName: boolean = true): Function | Error {
+    let fullPath = resolve(
+      process.cwd(),
+      path,
+    );
 
     if (underscoreName) {
       const pieces = path.split('/');
@@ -78,21 +88,86 @@ export default class Base {
 
     const file = require(fullPath);
 
-    if (!file[handlerName]) {
-      throw new Error(`Helper at ${path} does not export a function called "${handlerName}"`);
+    let fn;
+
+    if (!handlerName) {
+      fn = file.default || file;
+    } else {
+      fn = file[handlerName];
     }
 
-    return file[handlerName] as Function;
+    if (!fn) {
+      throw new Error(`Helper at ${path} does not export a function`);
+    }
+
+    return fn as Function;
   }
 
-  static factory(context: any, runner: Function, options: Options = {}): Base {
-    return new Base(context, runner, options);
+  static factory(runner: Function, options: Options = {}): Base {
+    return new Base(runner, options);
   }
 
-  constructor(context: any, runner: Function, options: Options = {}) {
-    this.context = context;
+  constructor(runner: Function, options: Options = {}) {
     this.runner = runner;
     this.options = options;
+
+    this.logger = Bunyan.createLogger({
+      name: process.env.SERVICE_NAME || 'unknown',
+      serializers: Bunyan.stdSerializers,
+      level: (
+        process.env.LOG_LEVEL
+          ? parseInt(process.env.LOG_LEVEL, 10)
+          : 30
+      ),
+    });
+  }
+
+  async resolveContext(): Promise<{ [key: string]: any }> {
+    // @ts-ignore
+    const chain = process.contextChain || false;
+
+    if (!chain) {
+      console.log('=== Starting Context Resolution - Context does not exist');
+
+      // @ts-ignore
+      process.contextChain = Promise.resolve({});
+
+      const context = map(
+        this.options.context || {},
+        (pathOrFn, key) => (
+          {
+            key,
+            handler: pathOrFn,
+          }
+        ),
+      );
+  
+      context.unshift({
+        key: 'Logger',
+        handler: () => this.logger,
+      });
+
+      context.forEach(({ key, handler }) => {
+        // @ts-ignore
+        process.contextChain = process.contextChain!.then(async (ctx) => {
+          if (isFunction(handler)) {
+            handler = handler as Function;
+          } else {
+            handler = Base.requireHandler(handler as string, null, false) as Function;
+          }
+          
+          return Object.assign(
+            ctx,
+            {
+              [key]: await handler(ctx),
+            },
+          );
+        });
+      });
+    }
+
+    // @ts-ignore
+    return process.contextChain;
   }
 
   async exec(event: any): Promise<any> {

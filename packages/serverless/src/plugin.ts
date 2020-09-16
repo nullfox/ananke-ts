@@ -16,6 +16,7 @@ import {
   chain,
   get,
   has,
+  isPlainObject,
   set,
 } from 'lodash';
 
@@ -28,16 +29,13 @@ export enum Key {
 
   FunctionSource = 'ananke.function.source',
   Context = 'ananke.function.context',
-  PreMiddleware = 'ananke.function.middleware.pre',
-  PostMiddleware = 'ananke.function.middleware.post',
+
+  HttpPreMiddleware = 'ananke.http.middleware.pre',
+  HttpPostMiddleware = 'ananke.http.middleware.post',
 
   Rpc = 'ananke.rpc',
   RpcPath = 'ananke.rpc.path',
   RpcMethodSource = 'ananke.rpc.methods',
-  RpcAuthenticator = 'ananke.rpc.authenticator',
-
-  Rest = 'ananke.rest',
-  RestAuthenticator = 'ananke.rest.authenticator',
 };
 
 export default class Plugin {
@@ -60,9 +58,13 @@ export default class Plugin {
     };
 
     ok(
-      this.hasCustomValue(Key.Context),
-      `${Key.Context} key must be set in serverless.yml (ex: custom.${Key.Context}: lib/context)`,
-    );
+      !this.hasCustomValue(Key.Context)
+        || (
+          this.hasCustomValue(Key.Context)
+            && isPlainObject(this.getCustomValue(Key.Context))
+        ),
+      `${Key.Context} key must be an object containing Key: path/to/file (ex: Database: lib/functions/context/database)`,
+    )
 
     ok(
       this.hasCustomValue(Key.FunctionSource),
@@ -93,6 +95,10 @@ export default class Plugin {
 
   getCustomValue(key: Key, defaultValue?: any): string {
     return get(this.sls.service, `custom.${key}`, defaultValue);
+  }
+
+  getSlsValue(key: string): any {
+    return get(this.sls, key);
   }
 
   hasRpc(): boolean {

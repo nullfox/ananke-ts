@@ -1,15 +1,10 @@
 const Runtime = require('@ananke/runtime');
 
-const Context = require('<%= contextPath %>').default;
-
 module.exports.handler = async event => (
-  Context.exec(ctx => (
-    Runtime.Handler.RPC.factory(
-      ctx,
-      () => '<%= path %>',
-      <%= options %>,
-    )
-      .exec(event)
-      .then(responder => responder.toGateway())
-  ))
+  Runtime.Handler.RPC.factory(
+    () => '<%= path %>',
+    <%= options %>,
+  )
+    .exec(event)
+    .then(responder => responder.toGateway())
 );
