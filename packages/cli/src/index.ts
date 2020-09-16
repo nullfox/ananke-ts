@@ -149,9 +149,10 @@ program
     // Ensure src/ dir exists
     mkdirp.sync(join(root, 'src'));
 
-    fileManager.copyFile('src/context/');
-    fileManager.copyFile('src/functions/authenticator');
+    fileManager.copyFile('src/context/config');
+    fileManager.copyFile('src/functions/middleware/auth');
     fileManager.copyFile('src/functions/rpc/hello.world');
+    fileManager.copyFile('src/functions/rpc/user.me');
     fileManager.copyFile('src/models/index');
     fileManager.copyFile('src/models/member');
 
