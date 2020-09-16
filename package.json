@@ -1,6 +1,9 @@
 {
   "name": "ananke",
   "private": true,
+  "scripts": {
+    "release": "lerna run tsc && lerna publish"
+  },
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
     "@types/node": "^14.0.27",
