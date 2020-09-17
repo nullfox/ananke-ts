@@ -81,6 +81,7 @@ program
       devDeps.push(
         '@tsconfig/node12',
         'typescript',
+        '@types/jsonwebtoken',
       );
     } else {
       devDeps.push(
@@ -94,6 +95,7 @@ program
       '@ananke/runtime',
       '@ananke/config-ssm-convict',
       '@hapi/boom',
+      'jsonwebtoken',
     ];
 
     execSync(`npm install --save ${prodDeps.join(' ')}`);
