@@ -117,6 +117,8 @@ program
     );
 
     execSync(`cp -r ${__dirname}/../templates/${isTypescript ? 'ts' : 'js'}/* ${root}`);
+    execSync(`cp ${__dirname}/../serverless.yml ${root}`);
+    execSync(`cp ${__dirname}/../.gitignore ${root}`);
     execSync('npm run build');
   });
 
