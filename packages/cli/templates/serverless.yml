@@ -29,6 +29,7 @@ custom:
       source: './lib/functions'
       context:
         Config: './lib/context/config'
+        JWT: './lib/context/jwt'
     http:
       middleware:
         pre:
